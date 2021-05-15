@@ -9,7 +9,7 @@ router.post('/register',validInfo, async(req,res)=>{
     try {
         console.log(req.body);
         //destructure req.body
-        const {name,email,password} = req.body;
+        const {name,email,password,designation} = req.body;
         //check if user exists...if so throw error
         const user = await pool.query('select * from users where user_email = $1',[email]);
         if (user.rowCount !== 0){
@@ -20,7 +20,7 @@ router.post('/register',validInfo, async(req,res)=>{
         const salt = await bcrypt.genSalt(saltRound);
         const bcryptPassword = await bcrypt.hash(password,salt);
         //enter new user into db
-        const newUser = await pool.query('insert into users(user_name,user_email,user_password) values ($1,$2,$3) returning *',[name,email,bcryptPassword]);
+        const newUser = await pool.query('insert into users(user_name,user_email,user_password,user_designation) values ($1,$2,$3,$4) returning *',[name,email,bcryptPassword,designation]);
         //res.json(newUser.rows[0]);
         //generate jwt token
         const token = jwtGenerator(newUser.rows[0].user_id);
@@ -33,9 +33,9 @@ router.post('/register',validInfo, async(req,res)=>{
 router.post('/login',validInfo, async(req,res)=>{
     try {
         //destructure req.body
-        const {email, password}  = req.body;
+        const {email, password,designation}  = req.body;
         //check if user exist...if not throw error
-        const user = await pool.query('select * from users where user_email = $1',[email]);
+        const user = await pool.query('select * from users where user_email = $1 and user_designation = $2',[email,designation]);
         if (user.rowCount == 0 ){
             return res.status(401).json("EMAIL DOES NOT EXIST");
         }

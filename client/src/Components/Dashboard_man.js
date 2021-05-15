@@ -2,7 +2,7 @@ import React, {useState,useEffect} from 'react';
 import { toast } from 'react-toastify';
 
 
-const Dashboard = ({ setAuth }) =>{
+const Dashboard_man = ({ setAuth }) =>{
 
     const [name, Setname] = useState('');
 
@@ -31,10 +31,10 @@ const Dashboard = ({ setAuth }) =>{
     },[]);
     return (
         <div>
-        <h1>Dashboard employee {name}</h1>
+        <h1>Dashboard Management {name}</h1>
         <button className='btn-btn-primary' onClick={e => logout(e)} >Logout</button>
         </div>
     )
 };
 
-export default Dashboard;
+export default Dashboard_man;

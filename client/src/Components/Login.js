@@ -6,11 +6,12 @@ const Login = ({ setAuth }) =>{
 
     const [email,Setemail] = useState('');
     const [password,Setpassword] = useState('');
-    
+    const [designation, Setdesignation] = useState('');
+
     const onSubmitform = async(e) => {
         e.preventDefault();
         try {
-            const body = {email, password};
+            const body = {email, password, designation};
             const response = await fetch('http://localhost:5000/auth/login',{
                 method : 'POST',
                 headers : {'Content-Type' : 'application/json'},
@@ -45,6 +46,18 @@ const Login = ({ setAuth }) =>{
         <label for="exampleInputPassword1">Password</label>
         <input type="password" className="form-control my-3" id="exampleInputPassword1" placeholder="Enter Password"
         value = {password} onChange={e => Setpassword(e.target.value)}/>
+        </div>
+        <div className="form-group">
+        <label htmlFor="inputGroupSelect02" className="mb-3">Designation</label>
+        <div class="input-group mb-3">
+        <select class="custom-select" id="inputGroupSelect02" onChange = {e => Setdesignation(e.target.value)}>
+        <option selected value = "1">Choose designation...</option>
+        <option value="employee">Employee</option>
+        <option value="managemet">Management</option>
+        <option value="finance">Finance</option>
+        </select>
+        <label class="input-group-text" for="inputGroupSelect02">Options</label>
+        </div>
         </div>
         <button type="submit" className="btn btn-success btn-block">Submit</button>
         </form>

@@ -2,16 +2,18 @@ import React, {useState} from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-const Register = ({ setAuth }) =>{
+const Register = ({ setAuth,SetDash }) =>{
 
     const [name, Setname] = useState('');
     const [email, Setemail] = useState('');
     const [password, Setpassword] = useState('');
+    const [designation, Setdesignation] = useState('');
 
     const onSubmitform = async(e) => {
         e.preventDefault();
         try {
-            const body = {name, email, password};
+            const body = {name, email, password, designation};
+            console.log(body);
             const response = await fetch('http://localhost:5000/auth/register',{
                 method : 'POST',
                 headers : {'Content-Type': 'application/json'},
@@ -21,6 +23,7 @@ const Register = ({ setAuth }) =>{
             if (parseRes.token) {
                 localStorage.setItem('token',parseRes.token);
                 setAuth(true);
+                SetDash(designation);
                 toast.success('Registered successfully!');
             } else {
                 setAuth(false);
@@ -51,6 +54,18 @@ const Register = ({ setAuth }) =>{
         <input type="password" className="form-control my-3" id="exampleInputPassword1" placeholder="Enter Password"
         value = {password} onChange={e => Setpassword(e.target.value)}/>
         </div>
+        <div className="form-group">
+        <label htmlFor="inputGroupSelect02" className="mb-3">Designation</label>
+        <div class="input-group mb-3">
+        <select class="custom-select" id="inputGroupSelect02" onChange = {e => Setdesignation(e.target.value)}>
+        <option selected value = "1">Choose designation...</option>
+        <option value="employee">Employee</option>
+        <option value="management">Management</option>
+        <option value="finance">Finance</option>
+        </select>
+        <label class="input-group-text" for="inputGroupSelect02">Options</label>
+        </div>
+        </div>
         <button type="submit" className="btn btn-success btn-block">Submit</button>
         </form>
         <Link to='/login'>Login</Link>
@@ -59,3 +74,5 @@ const Register = ({ setAuth }) =>{
 };
 
 export default Register;
+
+
