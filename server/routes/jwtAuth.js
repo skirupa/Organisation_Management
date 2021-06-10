@@ -9,7 +9,7 @@ router.post('/register',validInfo, async(req,res)=>{
     try {
         console.log(req.body);
         //destructure req.body
-        const {name,email,password,designation} = req.body;
+        const {name,email,password,designation,phone,dob,address,nationality,blood_group,emp_type} = req.body;
         //check if user exists...if so throw error
         const user = await pool.query('select * from users where user_email = $1',[email]);
         if (user.rowCount !== 0){
@@ -20,10 +20,10 @@ router.post('/register',validInfo, async(req,res)=>{
         const salt = await bcrypt.genSalt(saltRound);
         const bcryptPassword = await bcrypt.hash(password,salt);
         //enter new user into db
-        const newUser = await pool.query('insert into users(user_name,user_email,user_password,user_designation) values ($1,$2,$3,$4) returning *',[name,email,bcryptPassword,designation]);
+        const newUser = await pool.query('select insert_details($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[name,email,bcryptPassword,designation,phone,dob,address,nationality,blood_group,emp_type]);
         //res.json(newUser.rows[0]);
         //generate jwt token
-        const token = jwtGenerator(newUser.rows[0].user_id);
+        const token = jwtGenerator(newUser.rows[0].insert_details);
         res.json({ token });
     } catch (error) {
         console.error(error.message);
@@ -33,10 +33,12 @@ router.post('/register',validInfo, async(req,res)=>{
 router.post('/login',validInfo, async(req,res)=>{
     try {
         //destructure req.body
-        const {email, password,designation}  = req.body;
+        const {email, password, designation}  = req.body;
+        console.log(req.body);
         //check if user exist...if not throw error
         const user = await pool.query('select * from users where user_email = $1 and user_designation = $2',[email,designation]);
         if (user.rowCount == 0 ){
+            console.log('kiru');
             return res.status(401).json("EMAIL DOES NOT EXIST");
         }
         //check if incoming password is same as database password
@@ -64,4 +66,27 @@ router.get('/is-verify',authorisation,async(req,res) => {
     }
 });
 
+router.get('/employee',authorisation, async(req,res)=>{
+    try {
+        const query = await pool.query('select * from employee join users on users.user_id=employee.emp_id where emp_id=cast($1 as uuid)',[req.user]);
+        // console.log(query.rows);
+        res.json(query.rows[0]);
+    } catch (error) {
+        console.log(error);
+    }
+});
+
+router.get('/employee_details/:id', async(req,res) => {
+    try {
+        const {id} = req.params;
+        const query = await pool.query('select * from employee join users on users.user_id=employee.emp_id where emp_id=cast($1 as uuid)',[id]);
+        // console.log(query.rows);
+        res.json(query.rows[0]);
+    } catch (error) {
+        console.log(error.message);
+    }
+});
+
+
 module.exports = router;
+

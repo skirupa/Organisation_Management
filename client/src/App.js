@@ -11,6 +11,9 @@ import Register from './Components/Register';
 //react-toastify
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import DisplayReceipts from './Components/DisplayReceipts';
+import DisplayReceipts_man from './Components/DisplayReceipts_man';
+import DisplayReceipts_fin from './Components/DisplayReceipts_fin';
 
 toast.configure();
 
@@ -44,17 +47,32 @@ function App() {
       console.error(error.message);
     }
   };
+
+  async function getname() {
+    try {
+        const response = await fetch('http://localhost:5000/dashboard',{
+            method : 'GET',
+            headers : { token : localStorage.token }
+        });
+        const Parseres = await response.json();
+        //console.log(Parseres);
+        Setdashboard(Parseres.user_designation);
+    } catch (error) {
+        console.error(error.message);
+    }
+};
+
   useEffect(()=> {
     isAuth();
+    getname();//eslint-disable-next-line
   });
 
   return (
     <div>
       <Router>
-        <div className='container' >
           <Switch>
             <Route exact path='/login' 
-              render={props => !isAuthenticated ? <Login setAuth={setAuth} /> : <Redirect to='/dashboard'/> }> 
+              render={props => !isAuthenticated ? <Login setAuth={setAuth} SetDash={SetDash} /> : <Redirect to='/dashboard'/> }> 
             </Route>
             <Route exact path='/register' 
               render={props => !isAuthenticated ? <Register setAuth={setAuth} SetDash={SetDash} /> : <Redirect to='/login'/> }>
@@ -65,13 +83,23 @@ function App() {
                 if(isAuthenticated) {
                   if(dashboard === 'employee') return <Dashboard setAuth={setAuth} />;
                   else if (dashboard === 'management') return <Dashboard_man setAuth={setAuth} />;
-                  else return <Dashboard_fin setAuth={setAuth} />;
+                  else if (dashboard === 'finance') return <Dashboard_fin setAuth={setAuth} />;
+                }
+                else return <Redirect to='/login'/>;
+              }}>
+              </Route>
+              <Route exact path='/all_receipts' 
+              //render={props => isAuthenticated ? <Dashboard {...props} setAuth={setAuth} /> : <Redirect to='/login'/> }>
+              render = {() => {
+                if(isAuthenticated) {
+                  if(dashboard === 'employee') return <DisplayReceipts />;
+                  else if (dashboard === 'management') return <DisplayReceipts_man />;
+                  else if (dashboard === 'finance') return <DisplayReceipts_fin />;
                 }
                 else return <Redirect to='/login'/>;
               }}>
               </Route>
           </Switch>
-        </div>
       </Router>
     </div>
   );
